@@ -36,16 +36,14 @@ def potential_to_probability(f, kbT=2.479):
     return wrapped_function
 
 
-def MCMC(f, num_samples, step_size, x0, xrange):
+def MCMC(f, num_samples, step_size, x0, xrange, num_equil=0):
     """
     Metropolis-Hastings algorithm
     """
-    x = np.zeros(num_samples)
-    y = np.zeros(num_samples)
-    samples = np.zeros((num_samples, len(x0)))
+    samples = np.zeros((num_equil + num_samples, len(x0)))
     samples[0]= x0
     i = 0
-    while i < num_samples - 1:
+    while i < num_samples + num_equil - 1:
         x_cand = samples[i].copy()
         x_cand += np.random.normal(0, step_size, size=len(x0))
         in_range = np.all(np.logical_and(x_cand > xrange[:, 0], x_cand < xrange[:, 1]))
@@ -57,4 +55,4 @@ def MCMC(f, num_samples, step_size, x0, xrange):
             else:
                 samples[i + 1] = samples[i]
             i += 1
-    return samples
+    return samples[num_equil:]
