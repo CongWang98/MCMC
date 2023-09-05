@@ -44,18 +44,17 @@ def MCMC(f, num_samples, step_size, x0, xrange):
     y = np.zeros(num_samples)
     samples = np.zeros((num_samples, len(x0)))
     samples[0]= x0
-    for i in range(num_samples - 1):
+    i = 0
+    while i < num_samples - 1:
         x_cand = samples[i].copy()
-        for j in range(len(x0)):
-            x_cand[j] = samples[i][j] + np.random.normal(0, step_size)
+        x_cand += np.random.normal(0, step_size, size=len(x0))
         in_range = np.all(np.logical_and(x_cand > xrange[:, 0], x_cand < xrange[:, 1]))
-        while not in_range:
-            x_cand = samples[i].copy()
-            for j in range(len(x0)):
-                x_cand[j] = samples[i][j] + np.random.normal(0, step_size)
-            in_range = np.all(np.logical_and(x_cand > xrange[:, 0], x_cand < xrange[:, 1]))
-        if np.random.rand() < f(x_cand) / f(samples[i]) :
-            samples[i + 1] = x_cand
+        if not in_range:
+            continue
         else:
-            samples[i + 1] = samples[i]
+            if np.random.rand() < f(x_cand) / f(samples[i]) :
+                samples[i + 1] = x_cand
+            else:
+                samples[i + 1] = samples[i]
+            i += 1
     return samples
